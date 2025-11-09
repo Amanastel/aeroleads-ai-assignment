@@ -1,0 +1,42 @@
+# Render deployment configuration
+# Push this to GitHub and connect to Render for automatic deployment
+
+services:
+  # Autodialer Service
+  - type: web
+    name: aeroleads-autodialer
+    env: python
+    region: oregon
+    plan: free
+    buildCommand: "cd Autodialer && pip install -r requirements.txt && pip install gunicorn"
+    startCommand: "cd Autodialer && gunicorn --bind 0.0.0.0:$PORT app:app"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: TWILIO_ACCOUNT_SID
+        sync: false
+      - key: TWILIO_AUTH_TOKEN
+        sync: false
+      - key: TWILIO_PHONE_NUMBER
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: SECRET_KEY
+        generateValue: true
+
+  # Blog Generator Service
+  - type: web
+    name: aeroleads-bloggenerator
+    env: python
+    region: oregon
+    plan: free
+    buildCommand: "cd BlogGenerator && pip install -r requirements.txt && pip install gunicorn"
+    startCommand: "cd BlogGenerator && gunicorn --bind 0.0.0.0:$PORT app:app"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: SECRET_KEY
+        generateValue: true
+

@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Generator - AeroLeads</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        header {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.6em;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+            font-size: 0.95em;
+        }
+        
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 200px;
+            transition: border-color 0.3s;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        select, input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        select:focus, input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.1s;
+            width: 100%;
+        }
+        
+        button:hover {
+            background: #5568d3;
+        }
+        
+        button:active {
+            transform: scale(0.98);
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .btn-secondary {
+            background: #48bb78;
+        }
+        
+        .btn-secondary:hover {
+            background: #38a169;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .alert-success {
+            background: #c6f6d5;
+            color: #22543d;
+            border-left: 4px solid #48bb78;
+        }
+        
+        .alert-error {
+            background: #fed7d7;
+            color: #742a2a;
+            border-left: 4px solid #f56565;
+        }
+        
+        .alert-info {
+            background: #bee3f8;
+            color: #2c5282;
+            border-left: 4px solid #4299e1;
+        }
+        
+        .progress-container {
+            background: #f7fafc;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #e0e0e0;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.85em;
+        }
+        
+        .progress-text {
+            color: #555;
+            text-align: center;
+            font-size: 0.95em;
+        }
+        
+        .results-container {
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .result-item {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .result-success {
+            border-left: 4px solid #48bb78;
+        }
+        
+        .result-failed {
+            border-left: 4px solid #f56565;
+        }
+        
+        .result-title {
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .result-status {
+            font-size: 0.85em;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+        
+        .status-success {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+        
+        .status-failed {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+        
+        .help-text {
+            font-size: 0.85em;
+            color: #777;
+            margin-top: 5px;
+        }
+        
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+            
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .button-group {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>✍️ AI Blog Generator</h1>
+            <p class="subtitle">Generate professional blog articles using AI</p>
+        </header>
+        
+        <!-- Alert Messages -->
+        <div id="alert-success" class="alert alert-success"></div>
+        <div id="alert-error" class="alert alert-error"></div>
+        <div id="alert-info" class="alert alert-info"></div>
+        
+        <!-- Main Form -->
+        <div class="card">
+            <h2>Generate Blog Articles</h2>
+            
+            <div class="input-group">
+                <label for="titles">Blog Titles (one per line, max 10):</label>
+                <textarea id="titles" placeholder="Getting Started with Python FastAPI
+Building Scalable Microservices
+Best Practices for REST API Design
+Introduction to Docker Containers
+Advanced Git Workflows for Teams"></textarea>
+                <p class="help-text">Enter up to 10 blog titles, one per line. Each will be generated as a full article.</p>
+            </div>
+            
+            <div class="options-grid">
+                <div class="input-group">
+                    <label for="tone">Writing Tone:</label>
+                    <select id="tone">
+                        <option value="professional">Professional</option>
+                        <option value="casual">Casual</option>
+                        <option value="technical">Technical</option>
+                        <option value="beginner-friendly">Beginner-Friendly</option>
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <label for="word-count">Target Word Count:</label>
+                    <input type="number" id="word-count" value="800" min="400" max="2000" step="100">
+                </div>
+            </div>
+            
+            <button id="generate-btn" onclick="generateBlogs()">
+                🚀 Generate Blogs
+            </button>
+            
+            <!-- Progress -->
+            <div id="progress-container" class="progress-container">
+                <div class="progress-bar">
+                    <div id="progress-fill" class="progress-fill">0%</div>
+                </div>
+                <p id="progress-text" class="progress-text">Generating blogs...</p>
+            </div>
+            
+            <!-- Results -->
+            <div id="results-container" class="results-container">
+                <h3 style="margin-bottom: 15px; color: #333;">Generation Results:</h3>
+                <div id="results-list"></div>
+            </div>
+            
+            <div class="button-group" style="margin-top: 25px;">
+                <button class="btn-secondary" onclick="viewAllBlogs()">
+                    📚 View All Blogs
+                </button>
+                <button class="btn-secondary" onclick="clearForm()">
+                    🔄 Clear Form
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function showAlert(message, type = 'success') {
+            const alertId = `alert-${type}`;
+            const alertEl = document.getElementById(alertId);
+            
+            if (alertEl) {
+                alertEl.textContent = message;
+                alertEl.style.display = 'block';
+                
+                setTimeout(() => {
+                    alertEl.style.display = 'none';
+                }, 5000);
+            }
+        }
+        
+        async function generateBlogs() {
+            const titlesEl = document.getElementById('titles');
+            const toneEl = document.getElementById('tone');
+            const wordCountEl = document.getElementById('word-count');
+            const generateBtn = document.getElementById('generate-btn');
+            const progressContainer = document.getElementById('progress-container');
+            const progressFill = document.getElementById('progress-fill');
+            const progressText = document.getElementById('progress-text');
+            const resultsContainer = document.getElementById('results-container');
+            const resultsList = document.getElementById('results-list');
+            
+            // Get titles
+            const titlesText = titlesEl.value.trim();
+            if (!titlesText) {
+                showAlert('Please enter at least one blog title', 'error');
+                return;
+            }
+            
+            const titles = titlesText.split('\n').filter(t => t.trim()).slice(0, 10);
+            
+            if (titles.length === 0) {
+                showAlert('Please enter at least one blog title', 'error');
+                return;
+            }
+            
+            // Disable button and show progress
+            generateBtn.disabled = true;
+            generateBtn.textContent = 'Generating...';
+            progressContainer.style.display = 'block';
+            resultsContainer.style.display = 'none';
+            resultsList.innerHTML = '';
+            
+            try {
+                const response = await fetch('/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        titles: titles,
+                        tone: toneEl.value,
+                        word_count: parseInt(wordCountEl.value)
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Generation failed');
+                }
+                
+                // Show results
+                progressFill.style.width = '100%';
+                progressFill.textContent = '100%';
+                progressText.textContent = `Generated ${data.total_generated} of ${titles.length} blogs`;
+                
+                // Display results
+                resultsContainer.style.display = 'block';
+                
+                data.results.forEach(result => {
+                    const resultDiv = document.createElement('div');
+                    resultDiv.className = `result-item ${result.success ? 'result-success' : 'result-failed'}`;
+                    
+                    const titleSpan = document.createElement('span');
+                    titleSpan.className = 'result-title';
+                    titleSpan.textContent = result.title;
+                    
+                    const statusSpan = document.createElement('span');
+                    statusSpan.className = `result-status ${result.success ? 'status-success' : 'status-failed'}`;
+                    statusSpan.textContent = result.success ? '✓ Generated' : '✗ Failed';
+                    
+                    resultDiv.appendChild(titleSpan);
+                    resultDiv.appendChild(statusSpan);
+                    resultsList.appendChild(resultDiv);
+                });
+                
+                showAlert(`Successfully generated ${data.total_generated} blog articles!`, 'success');
+                
+                // Animate progress
+                let progress = 0;
+                const interval = setInterval(() => {
+                    progress += 10;
+                    if (progress <= 100) {
+                        progressFill.style.width = progress + '%';
+                        progressFill.textContent = progress + '%';
+                    } else {
+                        clearInterval(interval);
+                    }
+                }, 100);
+                
+            } catch (error) {
+                showAlert(`Error: ${error.message}`, 'error');
+                progressContainer.style.display = 'none';
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.textContent = '🚀 Generate Blogs';
+            }
+        }
+        
+        function viewAllBlogs() {
+            window.location.href = '/blog';
+        }
+        
+        function clearForm() {
+            document.getElementById('titles').value = '';
+            document.getElementById('tone').value = 'professional';
+            document.getElementById('word-count').value = '800';
+            document.getElementById('progress-container').style.display = 'none';
+            document.getElementById('results-container').style.display = 'none';
+        }
+        
+        // Allow Ctrl+Enter to submit
+        document.getElementById('titles').addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'Enter') {
+                generateBlogs();
+            }
+        });
+    </script>
+</body>
+</html>
+
