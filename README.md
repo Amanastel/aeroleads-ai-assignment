@@ -53,7 +53,7 @@ aeroleads-ai-assignment/
 ### Clone Repository
 
 ```bash
-git clone https://github.com/yourusername/aeroleads-ai-assignment.git
+git clone https://github.com/amanastel/aeroleads-ai-assignment.git
 cd aeroleads-ai-assignment
 ```
 

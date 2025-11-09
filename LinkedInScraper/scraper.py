@@ -77,9 +77,64 @@ class LinkedInScraper:
                 logger.info(f"Using ChromeDriver from: {chrome_driver_path}")
             else:
                 # Use webdriver-manager to auto-download driver
-                service = Service(ChromeDriverManager().install())
+                driver_path = ChromeDriverManager().install()
+                
+                # Fix: webdriver-manager sometimes returns wrong file (THIRD_PARTY_NOTICES.chromedriver)
+                # We need to find the actual chromedriver executable
+                if not os.path.isfile(driver_path) or not os.access(driver_path, os.X_OK) or 'THIRD_PARTY' in driver_path:
+                    # If path is invalid or points to wrong file, search for actual chromedriver
+                    base_dir = driver_path
+                    if os.path.isfile(driver_path):
+                        base_dir = os.path.dirname(driver_path)
+                    elif not os.path.isdir(driver_path):
+                        base_dir = os.path.dirname(os.path.dirname(driver_path))
+                    
+                    # Search for chromedriver executable
+                    possible_paths = [
+                        os.path.join(base_dir, 'chromedriver'),
+                        os.path.join(base_dir, 'chromedriver-mac-arm64', 'chromedriver'),
+                        os.path.join(base_dir, 'chromedriver-mac-x64', 'chromedriver'),
+                    ]
+                    
+                    # Also check parent directories
+                    parent_dir = os.path.dirname(base_dir) if os.path.isdir(base_dir) else base_dir
+                    possible_paths.extend([
+                        os.path.join(parent_dir, 'chromedriver'),
+                        os.path.join(parent_dir, 'chromedriver-mac-arm64', 'chromedriver'),
+                        os.path.join(parent_dir, 'chromedriver-mac-x64', 'chromedriver'),
+                    ])
+                    
+                    driver_found = False
+                    for path in possible_paths:
+                        if os.path.isfile(path) and os.access(path, os.X_OK) and 'THIRD_PARTY' not in path:
+                            driver_path = path
+                            driver_found = True
+                            break
+                    
+                    # If still not found, search recursively
+                    if not driver_found:
+                        search_dirs = [base_dir, parent_dir] if os.path.isdir(base_dir) else [os.path.dirname(base_dir)]
+                        for search_dir in search_dirs:
+                            if os.path.isdir(search_dir):
+                                for root, dirs, files in os.walk(search_dir):
+                                    for file in files:
+                                        if file == 'chromedriver' and 'THIRD_PARTY' not in root:
+                                            candidate = os.path.join(root, file)
+                                            if os.access(candidate, os.X_OK):
+                                                driver_path = candidate
+                                                driver_found = True
+                                                break
+                                    if driver_found:
+                                        break
+                            if driver_found:
+                                break
+                    
+                    if not driver_found:
+                        raise FileNotFoundError(f"Could not find chromedriver executable. Searched in: {base_dir}")
+                
+                service = Service(driver_path)
                 self.driver = webdriver.Chrome(service=service, options=chrome_options)
-                logger.info("Using auto-managed ChromeDriver")
+                logger.info(f"Using auto-managed ChromeDriver: {driver_path}")
                 
             self.driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
             logger.info("Chrome WebDriver initialized successfully")

@@ -439,6 +439,29 @@ def health():
 
 
 if __name__ == '__main__':
-    port = int(os.getenv('PORT', 5000))
+    # Default to 5001 if PORT not set (5000 is often used by macOS AirPlay)
+    port = int(os.getenv('PORT', 5001))
+    
+    # Try to find an available port if the requested one is in use
+    import socket
+    original_port = port
+    for attempt in range(3):
+        try:
+            # Check if port is available
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.bind(('', port))
+            break
+        except OSError:
+            if attempt < 2:
+                port += 1
+                logger.warning(f"Port {port-1} in use, trying port {port}")
+            else:
+                logger.error(f"Could not find available port starting from {original_port}")
+                raise
+    
+    if port != original_port:
+        logger.info(f"Using port {port} instead of {original_port}")
+    
+    logger.info(f"Starting Autodialer on http://0.0.0.0:{port}")
     app.run(host='0.0.0.0', port=port, debug=os.getenv('FLASK_ENV') == 'development')
 
